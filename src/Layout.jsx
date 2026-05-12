@@ -43,8 +43,6 @@ import { base44 } from "@/api/base44Client"; // Added base44 import
 import InitialAccessModal from "./components/auth/InitialAccessModal";
 import CasinoSelectionModal from "./components/auth/CasinoSelectionModal";
 import AnonymousBanner from "./components/auth/AnonymousBanner";
-import BackupReminderModal from "./components/admin/BackupReminderModal";
-import { Casino, SlotMachine, MaintenanceRecord, Issue } from "@/entities/all";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -54,7 +52,6 @@ export default function Layout({ children, currentPageName }) {
   const [showCasinoModal, setShowCasinoModal] = useState(false);
   const [selectedCasino, setSelectedCasino] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showBackupReminder, setShowBackupReminder] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -86,151 +83,12 @@ export default function Layout({ children, currentPageName }) {
         setShowCasinoModal(true);
       }
 
-      // Check if admin and if backup reminder is needed
-      if (currentUser.role === 'admin') {
-        checkBackupReminder();
-      }
     } catch (error) {
       // Not authenticated and no anonymous session - show initial modal
       setShowInitialModal(true);
     } finally {
       setLoading(false);
     }
-  };
-
-  const checkBackupReminder = () => {
-    const lastBackupDate = localStorage.getItem('last_backup_date');
-    const lastDismissedDate = localStorage.getItem('backup_reminder_dismissed');
-
-    // Check if reminder was dismissed today
-    if (lastDismissedDate) {
-      const dismissedDate = new Date(lastDismissedDate);
-      const today = new Date();
-      
-      // If dismissed today, don't show reminder
-      if (
-        dismissedDate.getDate() === today.getDate() &&
-        dismissedDate.getMonth() === today.getMonth() &&
-        dismissedDate.getFullYear() === today.getFullYear()
-      ) {
-        return;
-      }
-    }
-
-    if (!lastBackupDate) {
-      // No backup recorded, show reminder
-      setShowBackupReminder(true);
-      return;
-    }
-
-    const daysSinceBackup = (Date.now() - new Date(lastBackupDate).getTime()) / (1000 * 60 * 60 * 24);
-
-    if (daysSinceBackup > 30) {
-      setShowBackupReminder(true);
-    }
-  };
-
-  const handleDownloadFullBackup = async () => {
-    try {
-      // Fetch all data
-      const [casinos, machines, maintenance, issues] = await Promise.all([
-        Casino.list(),
-        SlotMachine.list(),
-        MaintenanceRecord.list(),
-        Issue.list()
-      ]);
-
-      // Generate comprehensive CSV
-      const csvContent = generateFullBackupCSV({
-        casinos,
-        machines,
-        maintenance,
-        issues
-      });
-
-      // Download file
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      const filename = `full-backup-${new Date().toISOString().split('T')[0]}.csv`;
-
-      link.setAttribute('href', url);
-      link.setAttribute('download', filename);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url); // Clean up the object URL
-
-      // Update last backup date
-      localStorage.setItem('last_backup_date', new Date().toISOString());
-
-      // Close modal
-      setShowBackupReminder(false);
-      // Clear daily dismissal if a backup was just performed
-      localStorage.removeItem('backup_reminder_dismissed');
-    } catch (error) {
-      console.error('Error creating full backup:', error);
-      alert('Error creating backup. Please try again or use the Manage Casinos page.');
-    }
-  };
-
-  const generateFullBackupCSV = (data) => {
-    let csv = '';
-
-    // Helper to escape CSV values
-    const escapeCsv = (value) => {
-      if (value === null || value === undefined) return '';
-      let stringValue = String(value);
-      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-        return `"${stringValue.replace(/"/g, '""')}"`;
-      }
-      return stringValue;
-    };
-
-    // Backup Metadata
-    csv += 'FULL SYSTEM BACKUP\n';
-    csv += 'Export Date,Total Casinos,Total Machines,Total Maintenance Records,Total Issues\n';
-    csv += `${escapeCsv(new Date().toISOString())},${escapeCsv(data.casinos.length)},${escapeCsv(data.machines.length)},${escapeCsv(data.maintenance.length)},${escapeCsv(data.issues.length)}\n\n`;
-
-    // Casinos Section
-    csv += 'CASINOS\n';
-    csv += 'Casino ID,Name,Created Date\n';
-    data.casinos.forEach(c => {
-      csv += `${escapeCsv(c.id)},${escapeCsv(c.name)},${escapeCsv(c.created_date)}\n`;
-    });
-    csv += '\n';
-
-    // Machines Section
-    csv += 'MACHINES\n';
-    csv += 'Casino ID,Machine ID,Area,Section,Location,Manufacturer,Model,Serial Number,Install Date,Status\n';
-    data.machines.forEach(m => {
-      csv += `${escapeCsv(m.casino_id)},${escapeCsv(m.machine_id)},${escapeCsv(m.area)},${escapeCsv(m.section)},${escapeCsv(m.location)},${escapeCsv(m.manufacturer)},${escapeCsv(m.model)},${escapeCsv(m.serial_number || '')},${escapeCsv(m.install_date || '')},${escapeCsv(m.status)}\n`;
-    });
-    csv += '\n';
-
-    // Maintenance Section
-    csv += 'MAINTENANCE RECORDS\n';
-    csv += 'Casino ID,Machine ID,Year,Trimester,Date,Technician,Notes,Completed\n';
-    data.maintenance.forEach(m => {
-      csv += `${escapeCsv(m.casino_id)},${escapeCsv(m.machine_id)},${escapeCsv(m.year)},${escapeCsv(m.trimester)},${escapeCsv(m.maintenance_date)},${escapeCsv(m.technician)},${escapeCsv(m.notes)},${escapeCsv(m.completed)}\n`;
-    });
-    csv += '\n';
-
-    // Issues Section
-    csv += 'ISSUES\n';
-    csv += 'Casino ID,Machine ID,Area,Section,Location,Description,Service Status,Reported Date,Resolved,Resolved Date\n';
-    data.issues.forEach(i => {
-      csv += `${escapeCsv(i.casino_id)},${escapeCsv(i.machine_id)},${escapeCsv(i.area)},${escapeCsv(i.section)},${escapeCsv(i.location)},${escapeCsv(i.issue_description)},${escapeCsv(i.service_status)},${escapeCsv(i.reported_date)},${escapeCsv(i.resolved)},${escapeCsv(i.resolved_date || '')}\n`;
-    });
-
-    return csv;
-  };
-
-  const handleRemindLater = () => {
-    // Store the current date as the last dismissed date
-    localStorage.setItem('backup_reminder_dismissed', new Date().toISOString());
-    setShowBackupReminder(false);
   };
 
   const handleContinueAnonymous = () => {
@@ -278,9 +136,7 @@ export default function Layout({ children, currentPageName }) {
     sessionStorage.removeItem('selected_casino');
     localStorage.removeItem('anonymous_casino');
     sessionStorage.removeItem('anonymous_casino');
-    // Clear backup reminder dismissal and last backup date on logout
-    localStorage.removeItem('backup_reminder_dismissed');
-    localStorage.removeItem('last_backup_date');
+
     window.location.reload();
   };
 
@@ -347,11 +203,6 @@ export default function Layout({ children, currentPageName }) {
       <CasinoSelectionModal
         open={showCasinoModal}
         onSelectCasino={handleCasinoSelected}
-      />
-      <BackupReminderModal
-        open={showBackupReminder}
-        onDownload={handleDownloadFullBackup}
-        onRemindLater={handleRemindLater}
       />
 
       <SidebarProvider>

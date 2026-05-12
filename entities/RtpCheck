@@ -1,0 +1,52 @@
+{
+  "name": "RtpCheck",
+  "type": "object",
+  "properties": {
+    "casino_id": {
+      "type": "string",
+      "description": "Reference to casino ID"
+    },
+    "machine_id": {
+      "type": "string",
+      "description": "Machine identifier"
+    },
+    "year": {
+      "type": "number",
+      "description": "Year of the check"
+    },
+    "trimester": {
+      "type": "string",
+      "enum": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "description": "Trimester of the check"
+    },
+    "rtp_percentage": {
+      "type": "number",
+      "description": "Verified RTP percentage entered by user"
+    },
+    "check_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the RTP was verified"
+    },
+    "technician": {
+      "type": "string",
+      "description": "Name of person who verified the RTP"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes"
+    }
+  },
+  "required": [
+    "casino_id",
+    "machine_id",
+    "year",
+    "trimester",
+    "rtp_percentage",
+    "check_date"
+  ]
+}

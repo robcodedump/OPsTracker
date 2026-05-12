@@ -10,10 +10,12 @@ import { format } from "date-fns";
 import ReportRamClearDialog from "../components/ram-clears/ReportRamClearDialog";
 import CompleteRamClearDialog from "../components/ram-clears/CompleteRamClearDialog";
 import SyncIndicator from "../components/dashboard/SyncIndicator";
+import RtpTrimesterTracker from "../components/rtp/RtpTrimesterTracker";
 
 export default function RamClears() {
   const [machines, setMachines] = useState([]);
   const [ramClears, setRamClears] = useState([]);
+  const [rtpChecks, setRtpChecks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [completingRamClear, setCompletingRamClear] = useState(null);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
@@ -46,13 +48,15 @@ export default function RamClears() {
         return;
       }
       
-      const [machinesData, ramClearsData] = await Promise.all([
+      const [machinesData, ramClearsData, rtpChecksData] = await Promise.all([
         db.entities.SlotMachine.filter({ casino_id: casino.id }),
-        db.entities.RamClear.filter({ casino_id: casino.id }, '-clear_date')
+        db.entities.RamClear.filter({ casino_id: casino.id }, '-clear_date'),
+        db.entities.RtpCheck.filter({ casino_id: casino.id })
       ]);
       
       setMachines(machinesData);
       setRamClears(ramClearsData);
+      setRtpChecks(rtpChecksData);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -233,7 +237,7 @@ export default function RamClears() {
           )}
         </div>
 
-        {/* Completed Ram Clears */}
+        {/* Completed Ram Clears - collapsed/subtle */}
         <div>
           <div className="flex items-center gap-2 mb-4">
             <CheckCircle className="w-5 h-5 text-green-400" />
@@ -306,6 +310,13 @@ export default function RamClears() {
             </Card>
           )}
         </div>
+
+        {/* RTP Trimester Tracker */}
+        <RtpTrimesterTracker
+          machines={machines}
+          rtpChecks={rtpChecks}
+          onRefresh={loadData}
+        />
       </div>
     </div>
   );
