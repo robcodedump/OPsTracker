@@ -1,0 +1,20 @@
+{
+  "name": "Casino",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Casino name"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "name": "Issue",
+  "type": "object",
+  "properties": {
+    "casino_id": {
+      "type": "string",
+      "description": "Reference to casino ID"
+    },
+    "machine_id": {
+      "type": "string",
+      "description": "Reference to slot machine ID"
+    },
+    "area": {
+      "type": "string",
+      "description": "Area (A in A-S-L)"
+    },
+    "section": {
+      "type": "string",
+      "description": "Section (S in A-S-L)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location (L in A-S-L)"
+    },
+    "issue_description": {
+      "type": "string",
+      "description": "Description of the issue"
+    },
+    "service_status": {
+      "type": "string",
+      "enum": [
+        "in_service",
+        "out_of_service"
+      ],
+      "description": "Whether machine is still in service"
+    },
+    "reported_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the issue was reported"
+    },
+    "resolved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the issue has been resolved"
+    },
+    "resolved_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the issue was resolved"
+    },
+    "assigned_technician_email": {
+      "type": "string",
+      "description": "Email of the assigned technician"
+    },
+    "image_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Images uploaded when reporting the issue"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "author": {
+            "type": "string"
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          }
+        }
+      },
+      "default": [],
+      "description": "Additional notes and updates about the issue"
+    }
+  },
+  "required": [
+    "casino_id",
+    "machine_id",
+    "area",
+    "section",
+    "location",
+    "issue_description",
+    "service_status",
+    "reported_date"
+  ],
+  "rls": {}
+}

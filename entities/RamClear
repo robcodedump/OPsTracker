@@ -1,0 +1,76 @@
+{
+  "name": "RamClear",
+  "type": "object",
+  "properties": {
+    "casino_id": {
+      "type": "string",
+      "description": "Reference to casino ID"
+    },
+    "area": {
+      "type": "string",
+      "description": "Area designation (A in A-S-L)"
+    },
+    "section": {
+      "type": "string",
+      "description": "Section designation (S in A-S-L)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location designation (L in A-S-L)"
+    },
+    "current_rtp": {
+      "type": "number",
+      "description": "Current RTP (Return to Player) percentage"
+    },
+    "max_bet": {
+      "type": "string",
+      "description": "Maximum bet amount"
+    },
+    "clear_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of ram clear"
+    },
+    "checked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether ram clear has been checked/completed"
+    },
+    "checked_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date when ram clear was checked"
+    },
+    "checked_by": {
+      "type": "string",
+      "description": "User who checked the ram clear"
+    },
+    "completion_notes": {
+      "type": "string",
+      "description": "Notes about issues and resolutions when checking"
+    }
+  },
+  "required": [
+    "casino_id",
+    "area",
+    "section",
+    "location",
+    "current_rtp",
+    "max_bet",
+    "clear_date"
+  ],
+  "rls": {
+    "write": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "casino_id": "{{user.data.selectedCasinoId}}"
+        }
+      ]
+    }
+  }
+}

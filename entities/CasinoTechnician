@@ -1,0 +1,29 @@
+{
+  "name": "CasinoTechnician",
+  "type": "object",
+  "properties": {
+    "casino_id": {
+      "type": "string",
+      "description": "Reference to casino ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "Technician full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Technician email address"
+    }
+  },
+  "required": [
+    "casino_id",
+    "name"
+  ],
+  "rls": {
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

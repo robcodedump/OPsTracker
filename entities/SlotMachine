@@ -1,0 +1,80 @@
+{
+  "name": "SlotMachine",
+  "type": "object",
+  "properties": {
+    "casino_id": {
+      "type": "string",
+      "description": "Reference to casino ID"
+    },
+    "machine_id": {
+      "type": "string",
+      "description": "Unique machine identifier"
+    },
+    "area": {
+      "type": "string",
+      "description": "Area designation (A in A-S-L)"
+    },
+    "section": {
+      "type": "string",
+      "description": "Section designation (S in A-S-L)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location designation (L in A-S-L)"
+    },
+    "manufacturer": {
+      "type": "string",
+      "description": "Machine manufacturer"
+    },
+    "model": {
+      "type": "string",
+      "description": "Machine model"
+    },
+    "theme": {
+      "type": "string",
+      "description": "Machine theme"
+    },
+    "serial_number": {
+      "type": "string",
+      "description": "Serial number"
+    },
+    "install_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Installation date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "maintenance",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Current machine status"
+    }
+  },
+  "required": [
+    "casino_id",
+    "machine_id",
+    "area",
+    "section",
+    "location",
+    "manufacturer",
+    "model"
+  ],
+  "rls": {
+    "write": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "casino_id": "{{user.data.selectedCasinoId}}"
+        }
+      ]
+    }
+  }
+}

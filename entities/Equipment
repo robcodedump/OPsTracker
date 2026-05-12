@@ -1,0 +1,87 @@
+{
+  "name": "Equipment",
+  "type": "object",
+  "properties": {
+    "casino_id": {
+      "type": "string",
+      "description": "Reference to casino ID"
+    },
+    "equipment_type": {
+      "type": "string",
+      "enum": [
+        "shuffler",
+        "id_scanner",
+        "sign",
+        "progressive_server",
+        "computer",
+        "printer",
+        "floor_switch"
+      ],
+      "description": "Type of equipment"
+    },
+    "model_name": {
+      "type": "string",
+      "description": "Model or name of equipment"
+    },
+    "asset_id": {
+      "type": "string",
+      "description": "Asset ID or serial number"
+    },
+    "location": {
+      "type": "string",
+      "description": "Physical location of equipment"
+    },
+    "install_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Installation date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "retired"
+      ],
+      "default": "active",
+      "description": "Current equipment status"
+    },
+    "pm_cycle": {
+      "type": "string",
+      "enum": [
+        "bi-weekly",
+        "monthly",
+        "quarterly",
+        "yearly"
+      ],
+      "default": "monthly",
+      "description": "Preventive maintenance cycle frequency"
+    },
+    "last_pm_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of last completed PM (auto-updated from logs)"
+    }
+  },
+  "required": [
+    "casino_id",
+    "equipment_type",
+    "model_name",
+    "location",
+    "pm_cycle"
+  ],
+  "rls": {
+    "write": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "casino_id": "{{user.data.selectedCasinoId}}"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "name": "EquipmentLog",
+  "type": "object",
+  "properties": {
+    "casino_id": {
+      "type": "string",
+      "description": "Reference to casino ID"
+    },
+    "equipment_id": {
+      "type": "string",
+      "description": "Reference to equipment ID"
+    },
+    "entry_type": {
+      "type": "string",
+      "enum": [
+        "issue",
+        "preventative_maintenance",
+        "note"
+      ],
+      "description": "Type of log entry"
+    },
+    "title": {
+      "type": "string",
+      "description": "Title or summary of entry"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "routine",
+        "inspection"
+      ],
+      "description": "Severity for issues or PM type"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "closed",
+        "completed"
+      ],
+      "default": "open",
+      "description": "Current status of entry"
+    },
+    "technician": {
+      "type": "string",
+      "description": "Technician or user name"
+    },
+    "log_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time of log entry"
+    },
+    "assigned_technician_email": {
+      "type": "string",
+      "description": "Email of the assigned technician"
+    },
+    "image_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Images uploaded with this log entry"
+    }
+  },
+  "required": [
+    "casino_id",
+    "equipment_id",
+    "entry_type",
+    "title",
+    "technician",
+    "log_date"
+  ],
+  "rls": {
+    "write": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "casino_id": "{{user.data.selectedCasinoId}}"
+        }
+      ]
+    }
+  }
+}

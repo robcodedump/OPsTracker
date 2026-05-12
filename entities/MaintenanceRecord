@@ -1,0 +1,74 @@
+{
+  "name": "MaintenanceRecord",
+  "type": "object",
+  "properties": {
+    "casino_id": {
+      "type": "string",
+      "description": "Reference to casino ID"
+    },
+    "machine_id": {
+      "type": "string",
+      "description": "Reference to slot machine ID"
+    },
+    "year": {
+      "type": "number",
+      "description": "Maintenance year"
+    },
+    "trimester": {
+      "type": "string",
+      "enum": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "description": "Trimester (T1, T2, T3)"
+    },
+    "maintenance_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date maintenance was performed"
+    },
+    "technician": {
+      "type": "string",
+      "description": "Technician who performed maintenance"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Maintenance notes and observations"
+    },
+    "issues_found": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of issues found during maintenance"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether maintenance was completed"
+    }
+  },
+  "required": [
+    "casino_id",
+    "machine_id",
+    "year",
+    "trimester",
+    "maintenance_date",
+    "technician"
+  ],
+  "rls": {
+    "write": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "casino_id": "{{user.data.selectedCasinoId}}"
+        }
+      ]
+    }
+  }
+}
